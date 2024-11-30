@@ -1,0 +1,2 @@
+# curl -X GET "https://api.nfz.gov.pl/app-itl-api/places?page=1&limit=25&format=json&name=Toru%C5%84&province=02&api-version=1.3" -H "accept: text/plain"
+https://api.nfz.gov.pl/app-itl-api/places?page=1&limit=25&format=json&name=Toru%C5%84&province=02&api-version=1.3
