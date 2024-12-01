@@ -31,5 +31,54 @@ public class HttpClient {
         }
     }
 
+    String getQueues(int status, String provinceCode, String benefitName,
+                     boolean forChildren, String providerName, String providerPlaceName,
+                     String providerPlaceStreetName, String providerCityName) throws java.io.IOException {
 
+        HttpUrl.Builder urlBuilder = new HttpUrl.Builder()
+                .scheme("https")
+                .host("api.nfz.gov.pl")
+                .addPathSegment("app-itl-api")
+                .addPathSegment("queues")
+                .addQueryParameter("page", "1")
+                .addQueryParameter("limit", "25")
+                .addQueryParameter("format", "json")
+                .addQueryParameter("case", String.valueOf(status));
+
+        if (provinceCode != null) {
+            urlBuilder.addQueryParameter("province", provinceCode);
+        }
+        if (benefitName != null) {
+            urlBuilder.addQueryParameter("benefit", benefitName);
+        }
+        if (forChildren) {
+            urlBuilder.addQueryParameter("benefitForChildren", "true");
+        }
+        if (providerName != null) {
+            urlBuilder.addQueryParameter("provider", providerName);
+        }
+        if (providerPlaceName != null) {
+            urlBuilder.addQueryParameter("place", providerPlaceName);
+        }
+        if (providerPlaceStreetName != null) {
+            urlBuilder.addQueryParameter("street", providerPlaceStreetName);
+        }
+        if (providerCityName != null) {
+            urlBuilder.addQueryParameter("locality", providerCityName);
+        }
+
+        urlBuilder.addQueryParameter("api-version", "1.3");
+
+
+        HttpUrl url = urlBuilder.build();
+
+                Request request = new Request.Builder()
+                        .url(url)
+                        .addHeader("accept", "text/plain")
+                        .build();
+
+                try (Response response = client.newCall(request).execute()) {
+                    return response.body().string();
+                }
+    }
 }
