@@ -29,6 +29,7 @@ public class JsonParser {
     public List<Queue> readPageQueue(String response) {
         List<Queue> queues = new ArrayList<>();
         try {
+            //TODO: parse date String which is localised in data.attributes.date
             JsonNode links = mapper.readTree(response);
             JsonNode dataNode = links.path("data");
             String data = dataNode.toString();
@@ -41,13 +42,14 @@ public class JsonParser {
         return queues;
     }
 
-    public String getNextQueueURL(String response) {
+    public JsonNode getNextQueueURL(String response) {
         try {
             JsonNode current = mapper.readTree(response);
-            JsonNode currentNode = current.path("links").path("self");
-            return "https://api.nfz.gov.pl" + currentNode.asText();
+            JsonNode nextUrl = current.path("links").path("next");
+            return nextUrl;
         } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
             System.out.println("Error while parsing the response");
+            return null;
         }
     }
 

@@ -10,9 +10,10 @@ public class QueueAttributes {
     private String address;
     private String locality;
     private String phone;
+    private String date;
 
     public String getBenefit() {
-        return benefit;
+        return normalizeText(benefit);
     }
 
     public void setBenefit(String benefit) {
@@ -20,7 +21,7 @@ public class QueueAttributes {
     }
 
     public String getProvider() {
-        return provider;
+        return normalizeText(provider);
     }
 
     public void setProvider(String provider) {
@@ -28,7 +29,7 @@ public class QueueAttributes {
     }
 
     public String getPlace() {
-        return place;
+        return normalizeText(place);
     }
 
     public void setPlace(String place) {
@@ -36,7 +37,7 @@ public class QueueAttributes {
     }
 
     public String getAddress() {
-        return address;
+        return normalizeText(address);
     }
 
     public void setAddress(String address) {
@@ -44,7 +45,7 @@ public class QueueAttributes {
     }
 
     public String getLocality() {
-        return locality;
+        return normalizeText(locality);
     }
 
     public void setLocality(String locality) {
@@ -52,10 +53,37 @@ public class QueueAttributes {
     }
 
     public String getPhone() {
-        return phone;
+        return normalizeText(phone);
     }
 
     public void setPhone(String phone) {
         this.phone = phone;
     }
+
+    public String getDate() {
+        return normalizeText(date);
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    @Override
+    public String toString() {
+        return "Nazwa świadczenia: " + benefit +
+                ", Świadczeniodawca: " + provider +
+                ", Miejsce: " + place +
+                ", Adres: " + address +
+                ", Miejscowość: " + locality +
+                ", Telefon: " + phone +
+                ", Data: " + date;
+    }
+
+    private String normalizeText(String field) {
+        if (field == null || field.isEmpty()) {
+            return field;
+        }
+        return field.substring(0, 1).toUpperCase() + field.substring(1).toLowerCase();
+    }
+
 }

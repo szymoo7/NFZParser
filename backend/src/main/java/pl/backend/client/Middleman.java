@@ -1,5 +1,6 @@
 package pl.backend.client;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.sun.jdi.connect.Connector;
 import pl.backend.client.pojos.Queue;
 
@@ -31,26 +32,35 @@ public class Middleman {
         }
     }
 
-    public void printQueues(int status, String provinceCode, String benefitName,
+    public List<Queue> getQueues(int status, String provinceCode, String benefitName,
                                    boolean forChildren, String providerName, String providerPlaceName,
                                    String providerPlaceStreetName, String providerCityName) {
-        String start = null;
-        try {
-            start = client.getQueues(status, provinceCode, benefitName, forChildren,
-                    providerName, providerPlaceName, providerPlaceStreetName, providerCityName);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        List<String> urls = new ArrayList<>();
-        urls.add(start);
-
-
-
-
+        String response = null;
+        JsonNode next = null;
+        List<Queue> queues = new ArrayList<>();
+        int page = 0;
+        do {
+            try {
+                page++;
+                response = client.getQueues(status, provinceCode, benefitName, forChildren, providerName, providerPlaceName, providerPlaceStreetName, providerCityName, page);
+                queues.addAll(parser.readPageQueue(response));
+                next = parser.getNextQueueURL(response);
+            } catch (IOException e) {
+                System.out.println("Error while connecting to the server");
+            }
+        } while (!next.isNull());
+        return queues;
     }
+
+//    public void printQueues(int status, String provinceCode, String benefitName,
+//                                 boolean forChildren, String providerName, String providerPlaceName,
+//                                 String providerPlaceStreetName, String providerCityName) {
+//        List<Queue> queues = getQueues(status, provinceCode, benefitName, forChildren, providerName, providerPlaceName, providerPlaceStreetName, providerCityName);
+//        queues.forEach(System.out::println);
+//    }
 
     public static void main(String[] args) {
         Middleman connector = new Middleman();
-        connector.printQueues(1, "02", "Leczenie", true, null, null, null, "Toruń");
+//        connector.printQueues(1, "02", "Leczenie", true, null, null, null, "Toruń");
     }
 }

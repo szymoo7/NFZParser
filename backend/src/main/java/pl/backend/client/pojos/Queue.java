@@ -24,4 +24,9 @@ public class Queue {
     public void setAttributes(QueueAttributes attributes) {
         this.attributes = attributes;
     }
+
+    @Override
+    public String toString() {
+        return "Kolejka: " + attributes;
+    }
 }

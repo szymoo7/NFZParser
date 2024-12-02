@@ -1,24 +1,27 @@
 package org.gui.frontend;
 
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
 import pl.backend.client.Middleman;
-import pl.backend.client.enums.Case;
+import pl.backend.client.enums.Cases;
 import pl.backend.client.enums.Provinces;
+import pl.backend.client.pojos.Queue;
 
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Queue;
 import java.util.ResourceBundle;
 
 public class GUIController implements Initializable {
 
-    private static Middleman middleman = new Middleman();
     private static final List<Provinces> PROVINCES_LIST = Arrays.asList(Provinces.values());
+    private static final List<Cases> CASES_LIST = Arrays.asList(Cases.values());
+    private static final Middleman middleman = new Middleman();
 
     @FXML
     private ImageView nfzAlpha;
@@ -43,11 +46,25 @@ public class GUIController implements Initializable {
     @FXML
     private Button showDatesButton;
     @FXML
-    private ListView<Queue> nfzDatesListView;
+    private TableView<Queue> nfzDatesTableView;
+    @FXML
+    private TableColumn<Queue, String> benefitColumn;
+    @FXML
+    private TableColumn<Queue, String> providerColumn;
+    @FXML
+    private TableColumn<Queue, String> placeColumn;
+    @FXML
+    private TableColumn<Queue, String> addressColumn;
+    @FXML
+    private TableColumn<Queue, String> localityColumn;
+    @FXML
+    private TableColumn<Queue, String> phoneColumn;
+    @FXML
+    private TableColumn<Queue, String> dateColumn;
     @FXML
     private ChoiceBox<Provinces> visitDateProvincesChoiceBox;
     @FXML
-    private ChoiceBox<Case> visitDateCase;
+    private ChoiceBox<Cases> visitDateCase;
     @FXML
     private TextField visitDateBenefitNameTextField;
     @FXML
@@ -65,6 +82,22 @@ public class GUIController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         provincesChoiceBox.setItems(FXCollections.observableArrayList(PROVINCES_LIST));
+        visitDateCase.setItems(FXCollections.observableArrayList(CASES_LIST));
+        visitDateProvincesChoiceBox.setItems(FXCollections.observableArrayList(PROVINCES_LIST));
+        benefitColumn.setCellValueFactory(cellData ->
+                new SimpleStringProperty(cellData.getValue().getAttributes().getBenefit()));
+        providerColumn.setCellValueFactory(cellData ->
+                new SimpleStringProperty(cellData.getValue().getAttributes().getProvider()));
+        placeColumn.setCellValueFactory(cellData ->
+                new SimpleStringProperty(cellData.getValue().getAttributes().getPlace()));
+        addressColumn.setCellValueFactory(cellData ->
+                new SimpleStringProperty(cellData.getValue().getAttributes().getAddress()));
+        localityColumn.setCellValueFactory(cellData ->
+                new SimpleStringProperty(cellData.getValue().getAttributes().getLocality()));
+        phoneColumn.setCellValueFactory(cellData ->
+                new SimpleStringProperty(cellData.getValue().getAttributes().getPhone()));
+        dateColumn.setCellValueFactory(cellData ->
+                new SimpleStringProperty(cellData.getValue().getAttributes().getDate()));
     }
 
     @FXML
@@ -81,7 +114,16 @@ public class GUIController implements Initializable {
 
     @FXML
     protected void onShowDatesButtonClick() {
-        // TODO
-
+        int status = visitDateCase.getValue().getNumber();
+        String provinceCode = visitDateProvincesChoiceBox.getValue().getCode();
+        String benefitName = visitDateBenefitNameTextField.getText();
+        boolean forChildren = benefitForChildrenCheckBox.isSelected();
+        String providerName = visitDateProviderNameTextField.getText();
+        String providerPlaceName = visitDateProviderPlaceNameTextField.getText();
+        String providerPlaceStreetName = visitDateProviderPlaceStreetNameTextField.getText();
+        String providerCityName = visitDateProviderCityNameTextField.getText();
+        List<Queue> queues = middleman.getQueues(status, provinceCode, benefitName,
+                forChildren, providerName, providerPlaceName, providerPlaceStreetName, providerCityName);
+        nfzDatesTableView.setItems(FXCollections.observableArrayList(queues));
     }
 }

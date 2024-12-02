@@ -3,6 +3,9 @@ package pl.backend.client;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.Response;
+import pl.backend.client.pojos.Queue;
+
+import java.util.List;
 
 public class HttpClient {
     okhttp3.OkHttpClient client = new okhttp3.OkHttpClient();
@@ -33,14 +36,14 @@ public class HttpClient {
 
     String getQueues(int status, String provinceCode, String benefitName,
                      boolean forChildren, String providerName, String providerPlaceName,
-                     String providerPlaceStreetName, String providerCityName) throws java.io.IOException {
+                     String providerPlaceStreetName, String providerCityName, int page) throws java.io.IOException {
 
         HttpUrl.Builder urlBuilder = new HttpUrl.Builder()
                 .scheme("https")
                 .host("api.nfz.gov.pl")
                 .addPathSegment("app-itl-api")
                 .addPathSegment("queues")
-                .addQueryParameter("page", "1")
+                .addQueryParameter("page", String.valueOf(page))
                 .addQueryParameter("limit", "25")
                 .addQueryParameter("format", "json")
                 .addQueryParameter("case", String.valueOf(status));
@@ -80,5 +83,25 @@ public class HttpClient {
                 try (Response response = client.newCall(request).execute()) {
                     return response.body().string();
                 }
+    }
+
+    String getQueues(int status, String provinceCode, String benefitName,
+                     boolean forChildren, String providerName, String providerPlaceName,
+                     String providerPlaceStreetName, String providerCityName) throws java.io.IOException {
+        return getQueues(status, provinceCode, benefitName, forChildren,
+                providerName, providerPlaceName, providerPlaceStreetName, providerCityName, 1);
+    }
+
+    String getResponse(String url) {
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("accept", "text/plain")
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            return response.body().string();
+        } catch (java.io.IOException e) {
+            return null;
+        }
     }
 }
