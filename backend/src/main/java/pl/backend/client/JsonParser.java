@@ -31,7 +31,6 @@ public class JsonParser {
     public List<Queue> readPageQueue(String response) {
         List<Queue> queues = new ArrayList<>();
         try {
-            //TODO: parse date String which is localised in data.attributes.date
             JsonNode links = mapper.readTree(response);
             JsonNode dataNode = links.path("data");
             ArrayNode data = mapper.createArrayNode();
