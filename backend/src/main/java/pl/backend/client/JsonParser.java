@@ -2,6 +2,8 @@ package pl.backend.client;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import pl.backend.client.pojos.Queue;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -32,9 +34,20 @@ public class JsonParser {
             //TODO: parse date String which is localised in data.attributes.date
             JsonNode links = mapper.readTree(response);
             JsonNode dataNode = links.path("data");
-            String data = dataNode.toString();
-            Queue[] queue = mapper.readValue(data, Queue[].class);
-            queues.addAll(List.of(queue));
+            ArrayNode data = mapper.createArrayNode();
+            dataNode.elements().forEachRemaining(data::add);
+            data.forEach(q -> {
+                try {
+                    QueueAttributes attributes = mapper.treeToValue(q.path("attributes"), QueueAttributes.class);
+                    String date = q.path("attributes").path("dates").path("date").asText();
+                    attributes.setDate(date);
+                    Queue queue = new Queue();
+                    queue.setAttributes(attributes);
+                    queues.add(queue);
+                } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+                    System.out.println("Error while parsing the response");
+                }
+            });
         } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
             System.out.println("Error while parsing the response");
         }
