@@ -1,10 +1,13 @@
 package pl.backend.client.pojos;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ProvisionsData {
-    private String medicineProduct;
-    private String internationalName;
-    private String dose;
-    private String pack;
+    private String medicineProduct = "Brak danych";
+    private String internationalName = "Brak danych";
+    private String dose = "Brak danych";
+    private String pack = "Brak danych";
     private double marketPrice;
     private double patientPrice;
 
@@ -40,16 +43,16 @@ public class ProvisionsData {
         this.pack = pack;
     }
 
-    public double getMarketPrice() {
-        return marketPrice;
+    public String getMarketPrice() {
+        return String.format("%.2f", marketPrice);
     }
 
     public void setMarketPrice(double marketPrice) {
         this.marketPrice = marketPrice;
     }
 
-    public double getPatientPrice() {
-        return patientPrice;
+    public String getPatientPrice() {
+        return String.format("%.2f", patientPrice);
     }
 
     public void setPatientPrice(double patientPrice) {
@@ -57,14 +60,9 @@ public class ProvisionsData {
     }
 
     @Override
-    public String toString() {
-        return "ProvisionsData{" +
-                "medicineProduct='" + medicineProduct + '\'' +
-                ", internationalName='" + internationalName + '\'' +
-                ", dose='" + dose + '\'' +
-                ", pack='" + pack + '\'' +
-                ", marketPrice=" + marketPrice +
-                ", patientPrice=" + patientPrice +
-                '}';
-    }
+public String toString() {
+    return String.format("ProvisionsData{medicineProduct='%s', internationalName='%s'," +
+                    " dose='%s', pack='%s', marketPrice=%.2f, patientPrice=%.2f}",
+            medicineProduct, internationalName, dose, pack, marketPrice, patientPrice);
+}
 }

@@ -8,12 +8,14 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
+import javafx.scene.text.Text;
 import pl.backend.client.Middleman;
-import pl.backend.client.enums.Cases;
-import pl.backend.client.enums.Provinces;
+import pl.backend.client.enums.*;
+import pl.backend.client.pojos.ProvisionsData;
 import pl.backend.client.pojos.Queue;
 
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -22,6 +24,10 @@ public class GUIController implements Initializable {
 
     private static final List<Provinces> PROVINCES_LIST = Arrays.asList(Provinces.values());
     private static final List<Cases> CASES_LIST = Arrays.asList(Cases.values());
+    private static final List<Gender> GENDERS_LIST = Arrays.asList(Gender.values());
+    private static final List<Age> AGE_LIST = Arrays.asList(Age.values());
+    private static final List<Privileges> PRIVILEGES_LIST = Arrays.asList(Privileges.values());
+    private static final List<Announcements> ANNOUNCEMENTS = Arrays.asList(Announcements.values());
     private static final Middleman middleman = new Middleman();
 
     @FXML
@@ -80,6 +86,42 @@ public class GUIController implements Initializable {
     private TextField visitDateProviderCityNameTextField;
     @FXML
     private Label loadingText;
+    @FXML
+    private ChoiceBox<Provinces> provisionChoiceBox;
+    @FXML
+    private DatePicker provisionDatePickerFrom;
+    @FXML
+    private DatePicker provisionDatePickerTo;
+    @FXML
+    private TextField provisionMedicineProduct;
+    @FXML
+    private TextField provisionActiveSubstance;
+    @FXML
+    private TextField atcTextField;
+    @FXML
+    private ChoiceBox<Gender> provisionGender;
+    @FXML
+    private ChoiceBox<Age> provisionAge;
+    @FXML
+    private ChoiceBox<Privileges> provisionAdditional;
+    @FXML
+    private ChoiceBox<Announcements> provisionAnnouncement;
+    @FXML
+    private Button showProvisionsButton;
+    @FXML
+    private TableView<ProvisionsData> provisionTableView;
+    @FXML
+    private TableColumn<ProvisionsData, String> medicineProductColumn;
+    @FXML
+    private TableColumn<ProvisionsData, String> internationalNameColumn;
+    @FXML
+    private TableColumn<ProvisionsData, String> doseColumn;
+    @FXML
+    private TableColumn<ProvisionsData, String> packColumn;
+    @FXML
+    private TableColumn<ProvisionsData, Double> marketPriceColumn;
+    @FXML
+    private TableColumn<ProvisionsData, Double> patientPriceColumn;
 
 
     @Override
@@ -87,6 +129,11 @@ public class GUIController implements Initializable {
         provincesChoiceBox.setItems(FXCollections.observableArrayList(PROVINCES_LIST));
         visitDateCase.setItems(FXCollections.observableArrayList(CASES_LIST));
         visitDateProvincesChoiceBox.setItems(FXCollections.observableArrayList(PROVINCES_LIST));
+        provisionChoiceBox.setItems(FXCollections.observableArrayList(PROVINCES_LIST));
+        provisionGender.setItems(FXCollections.observableArrayList(GENDERS_LIST));
+        provisionAge.setItems(FXCollections.observableArrayList(AGE_LIST));
+        provisionAdditional.setItems(FXCollections.observableArrayList(PRIVILEGES_LIST));
+        provisionAnnouncement.setItems(FXCollections.observableArrayList(ANNOUNCEMENTS));
         benefitColumn.setCellValueFactory(cellData ->
                 new SimpleStringProperty(cellData.getValue().getAttributes().getBenefit()));
         providerColumn.setCellValueFactory(cellData ->
@@ -101,6 +148,12 @@ public class GUIController implements Initializable {
                 new SimpleStringProperty(cellData.getValue().getAttributes().getPhone()));
         dateColumn.setCellValueFactory(cellData ->
                 new SimpleStringProperty(cellData.getValue().getAttributes().getDate()));
+        medicineProductColumn.setCellValueFactory(new PropertyValueFactory<>("medicineProduct"));
+        internationalNameColumn.setCellValueFactory(new PropertyValueFactory<>("internationalName"));
+        doseColumn.setCellValueFactory(new PropertyValueFactory<>("dose"));
+        packColumn.setCellValueFactory(new PropertyValueFactory<>("pack"));
+        marketPriceColumn.setCellValueFactory(new PropertyValueFactory<>("marketPrice"));
+        patientPriceColumn.setCellValueFactory(new PropertyValueFactory<>("patientPrice"));
     }
 
     @FXML
@@ -135,5 +188,26 @@ public class GUIController implements Initializable {
                 loadingText.setVisible(false);
             });
         }).start();
+    }
+
+    @FXML
+    protected void onShowProvisionsButtonClick() {
+        String provinceCode = provisionChoiceBox.getValue().getCode();
+        LocalDateTime dateFrom = provisionDatePickerFrom.getValue()
+                != null ? provisionDatePickerFrom.getValue().atStartOfDay() : null;
+        LocalDateTime dateTo = provisionDatePickerTo.getValue()
+                != null ? provisionDatePickerTo.getValue().atStartOfDay() : null;
+        String medicineProduct = provisionMedicineProduct.getText();
+        String activeSubstance = provisionActiveSubstance.getText();
+        String atc = atcTextField.getText();
+        String gender = provisionGender.getValue().getCode();
+        int ageGroup = provisionAge.getValue().getNumber();
+        String privilegesAdditional = provisionAdditional.getValue() != null
+                ? provisionAdditional.getValue().getCode() : null;
+        String announcement = provisionAnnouncement.getValue() != null
+                ? provisionAnnouncement.getValue().getCode() : null;
+        List<ProvisionsData> drugs = middleman.getProvisions(provinceCode, dateFrom, dateTo, medicineProduct,
+                activeSubstance, atc, gender, ageGroup, privilegesAdditional, announcement);
+        provisionTableView.setItems(FXCollections.observableArrayList(drugs));
     }
 }

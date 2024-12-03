@@ -67,7 +67,6 @@ public class JsonParser {
     }
 
     public List<ProvisionsData> readPageProvisions(String response) {
-        //TODO: fix
         List<ProvisionsData> provisions = new ArrayList<>();
         try {
             JsonNode links = mapper.readTree(response);
@@ -76,7 +75,11 @@ public class JsonParser {
             dataNode.elements().forEachRemaining(data::add);
             data.forEach(q -> {
                 try {
-                    ProvisionsData provision = mapper.treeToValue(q, ProvisionsData.class);
+                    ProvisionsData provision = mapper.treeToValue(q.path("attributes"), ProvisionsData.class);
+                    String medicineProduct = q.path("attributes").path("medicine-product").asText();
+                    String internationalName = q.path("attributes").path("international-name").asText();
+                    provision.setMedicineProduct(medicineProduct);
+                    provision.setInternationalName(internationalName);
                     long quantity = q.path("attributes").path("quantity").asLong();
                     double value = q.path("attributes").path("value").asDouble();
                     double contributionOfPatient = q.path("attributes").path("contribution-of-patient").asDouble();

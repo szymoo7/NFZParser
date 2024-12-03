@@ -92,8 +92,8 @@ public class Middleman {
     public static void main(String[] args) {
         Middleman connector = new Middleman();
 //        connector.printQueues(1, "02", "Leczenie", true, null, null, null, "Toruń");
-        connector.getProvisions("02", null, null, null,
-                null, null, "M", 2,
-                null, null).forEach(System.out::println);
+//        connector.getProvisions("02", null, null, null,
+//                null, null, "M", 1,
+//                null, null).forEach(System.out::println);
     }
 }
