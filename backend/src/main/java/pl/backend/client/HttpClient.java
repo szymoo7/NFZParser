@@ -92,16 +92,4 @@ public class HttpClient {
                 providerName, providerPlaceName, providerPlaceStreetName, providerCityName, 1);
     }
 
-    String getResponse(String url) {
-        Request request = new Request.Builder()
-                .url(url)
-                .addHeader("accept", "text/plain")
-                .build();
-
-        try (Response response = client.newCall(request).execute()) {
-            return response.body().string();
-        } catch (java.io.IOException e) {
-            return null;
-        }
-    }
 }

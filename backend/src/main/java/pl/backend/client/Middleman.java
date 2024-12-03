@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.Thread.sleep;
+
 public class Middleman {
 
     HttpClient client = new HttpClient();
@@ -45,7 +47,8 @@ public class Middleman {
                 response = client.getQueues(status, provinceCode, benefitName, forChildren, providerName, providerPlaceName, providerPlaceStreetName, providerCityName, page);
                 queues.addAll(parser.readPageQueue(response));
                 next = parser.getNextQueueURL(response);
-            } catch (IOException e) {
+                sleep(500);
+            } catch (IOException | InterruptedException e) {
                 System.out.println("Error while connecting to the server");
             }
         } while (!next.isNull());

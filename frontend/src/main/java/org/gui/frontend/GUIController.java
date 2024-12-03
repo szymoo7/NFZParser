@@ -1,5 +1,6 @@
 package org.gui.frontend;
 
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -77,6 +78,8 @@ public class GUIController implements Initializable {
     private TextField visitDateProviderPlaceStreetNameTextField;
     @FXML
     private TextField visitDateProviderCityNameTextField;
+    @FXML
+    private Label loadingText;
 
 
     @Override
@@ -122,8 +125,15 @@ public class GUIController implements Initializable {
         String providerPlaceName = visitDateProviderPlaceNameTextField.getText();
         String providerPlaceStreetName = visitDateProviderPlaceStreetNameTextField.getText();
         String providerCityName = visitDateProviderCityNameTextField.getText();
-        List<Queue> queues = middleman.getQueues(status, provinceCode, benefitName,
-                forChildren, providerName, providerPlaceName, providerPlaceStreetName, providerCityName);
-        nfzDatesTableView.setItems(FXCollections.observableArrayList(queues));
+        loadingText.setVisible(true);
+
+        new Thread(() -> {
+            List<Queue> queues = middleman.getQueues(status, provinceCode, benefitName,
+                    forChildren, providerName, providerPlaceName, providerPlaceStreetName, providerCityName);
+            Platform.runLater(() -> {
+                nfzDatesTableView.setItems(FXCollections.observableArrayList(queues));
+                loadingText.setVisible(false);
+            });
+        }).start();
     }
 }

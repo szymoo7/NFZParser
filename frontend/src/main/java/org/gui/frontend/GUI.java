@@ -14,6 +14,7 @@ public class GUI extends Application {
         Scene scene = new Scene(fxmlLoader.load());
         stage.setTitle("NFZParser");
         stage.setScene(scene);
+        stage.resizableProperty().set(false);
         stage.show();
     }
 
