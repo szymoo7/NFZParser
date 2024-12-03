@@ -75,20 +75,20 @@ public class JsonParser {
             ArrayNode data = mapper.createArrayNode();
             dataNode.elements().forEachRemaining(data::add);
             data.forEach(q -> {
-        try {
-            ProvisionsData provision = mapper.treeToValue(q, ProvisionsData.class);
-            long quantity = q.path("attributes").path("quantity").asLong();
-            double value = q.path("attributes").path("value").asDouble();
-            double contributionOfPatient = q.path("attributes").path("contribution-of-patient").asDouble();
-            double marketPrice = value / quantity;
-            double patientPrice = contributionOfPatient / quantity;
-            provision.setMarketPrice(marketPrice);
-            provision.setPatientPrice(patientPrice);
-            provisions.add(provision);
-        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
-            System.out.println("Error while parsing the response");
-        }
-    });
+                try {
+                    ProvisionsData provision = mapper.treeToValue(q, ProvisionsData.class);
+                    long quantity = q.path("attributes").path("quantity").asLong();
+                    double value = q.path("attributes").path("value").asDouble();
+                    double contributionOfPatient = q.path("attributes").path("contribution-of-patient").asDouble();
+                    double marketPrice = value / quantity;
+                    double patientPrice = contributionOfPatient / quantity;
+                    provision.setMarketPrice(marketPrice);
+                    provision.setPatientPrice(patientPrice);
+                    provisions.add(provision);
+                } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+                    System.out.println("Error while parsing the response");
+                }
+            });
         } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
             System.out.println("Error while parsing the response");
         }
