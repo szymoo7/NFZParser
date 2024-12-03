@@ -5,6 +5,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import pl.backend.client.pojos.Queue;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class HttpClient {
@@ -75,14 +76,14 @@ public class HttpClient {
 
         HttpUrl url = urlBuilder.build();
 
-                Request request = new Request.Builder()
-                        .url(url)
-                        .addHeader("accept", "text/plain")
-                        .build();
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("accept", "text/plain")
+                .build();
 
-                try (Response response = client.newCall(request).execute()) {
-                    return response.body().string();
-                }
+        try (Response response = client.newCall(request).execute()) {
+            return response.body().string();
+        }
     }
 
     String getQueues(int status, String provinceCode, String benefitName,
@@ -90,6 +91,67 @@ public class HttpClient {
                      String providerPlaceStreetName, String providerCityName) throws java.io.IOException {
         return getQueues(status, provinceCode, benefitName, forChildren,
                 providerName, providerPlaceName, providerPlaceStreetName, providerCityName, 1);
+    }
+
+    String getProvisions(String provinceCode, LocalDateTime dateFrom, LocalDateTime dateTo,
+                         String medicineProduct, String activeSubstance, String atc,
+                         String gender, int ageGroup, String privilegesAdditional,
+                         String announcement, int page) throws java.io.IOException {
+
+        HttpUrl.Builder urlBuilder = new HttpUrl.Builder()
+                .scheme("https")
+                .host("api.nfz.gov.pl")
+                .addPathSegment("app-stat-api-ra")
+                .addPathSegment("provisions")
+                .addQueryParameter("page", String.valueOf(page))
+                .addQueryParameter("limit", "25")
+                .addQueryParameter("format", "json");
+
+        if (provinceCode != null) {
+            urlBuilder.addQueryParameter("province", provinceCode);
+        }
+        if (dateFrom != null) {
+            urlBuilder.addQueryParameter("dateFrom", dateFrom.toString());
+        }
+        if (dateTo != null) {
+            urlBuilder.addQueryParameter("dateTo", dateTo.toString());
+        }
+        if (medicineProduct != null) {
+            urlBuilder.addQueryParameter("medicineProduct", medicineProduct);
+        }
+        if (activeSubstance != null) {
+            urlBuilder.addQueryParameter("activeSubstance", activeSubstance);
+        }
+        if (atc != null) {
+            urlBuilder.addQueryParameter("atc", atc);
+        }
+        if (gender != null) {
+            urlBuilder.addQueryParameter("gender", gender);
+        }
+        if(ageGroup != 0) {
+            urlBuilder.addQueryParameter("ageGroup", String.valueOf(ageGroup));
+        }
+        if(privilegesAdditional != null) {
+            urlBuilder.addQueryParameter("privilegesAdditional", privilegesAdditional);
+        }
+        if(announcement != null) {
+            urlBuilder.addQueryParameter("announcement", announcement);
+        }
+
+        urlBuilder.addQueryParameter("api-version", "1.0");
+
+        HttpUrl url = urlBuilder.build();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("accept", "text/plain")
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            return response.body().string();
+        }
+
+
     }
 
 }
