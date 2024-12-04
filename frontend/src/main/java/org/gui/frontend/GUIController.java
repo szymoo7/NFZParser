@@ -122,6 +122,10 @@ public class GUIController implements Initializable {
     private TableColumn<ProvisionsData, Double> marketPriceColumn;
     @FXML
     private TableColumn<ProvisionsData, Double> patientPriceColumn;
+    @FXML
+    private Label loadingProvisionsLabel;
+    @FXML
+    private Label loadingPlacesLabel;
 
 
     @Override
@@ -158,14 +162,16 @@ public class GUIController implements Initializable {
 
     @FXML
     protected void onShowPlacesButtonClick() {
-        String cityName = cityTextField.getText();
-        String code = provincesChoiceBox.getValue().getCode();
-        if (cityName.isEmpty()) {
-            nfzPlacesListView.getItems().clear();
-            return;
-        }
+        loadingPlacesLabel.setVisible(true);
+        String cityName = cityTextField.getText().isEmpty() ? null : cityTextField.getText();
+        String code = provincesChoiceBox.getValue() != null ? provincesChoiceBox.getValue().getCode() : null;
+
         nfzPlacesListView.getItems().clear();
-        middleman.getLocalities(cityName, code).forEach(nfzPlacesListView.getItems()::add);
+        List<String> localities = middleman.getLocalities(cityName, code);
+        new Thread(() -> {
+            localities.forEach(nfzPlacesListView.getItems()::add);
+            Platform.runLater(() -> loadingPlacesLabel.setVisible(false));
+        }).start();
     }
 
     @FXML
@@ -192,6 +198,7 @@ public class GUIController implements Initializable {
 
     @FXML
     protected void onShowProvisionsButtonClick() {
+        loadingProvisionsLabel.setVisible(true);
         String provinceCode = provisionChoiceBox.getValue().getCode();
         LocalDateTime dateFrom = provisionDatePickerFrom.getValue()
                 != null ? provisionDatePickerFrom.getValue().atStartOfDay() : null;
@@ -206,8 +213,13 @@ public class GUIController implements Initializable {
                 ? provisionAdditional.getValue().getCode() : null;
         String announcement = provisionAnnouncement.getValue() != null
                 ? provisionAnnouncement.getValue().getCode() : null;
-        List<ProvisionsData> drugs = middleman.getProvisions(provinceCode, dateFrom, dateTo, medicineProduct,
-                activeSubstance, atc, gender, ageGroup, privilegesAdditional, announcement);
-        provisionTableView.setItems(FXCollections.observableArrayList(drugs));
+        new Thread(() -> {
+            List<ProvisionsData> drugs = middleman.getProvisions(provinceCode, dateFrom, dateTo, medicineProduct,
+                    activeSubstance, atc, gender, ageGroup, privilegesAdditional, announcement);
+            Platform.runLater(() -> {
+                    provisionTableView.setItems(FXCollections.observableArrayList(drugs));
+                    loadingProvisionsLabel.setVisible(false);
+            });
+        }).start();
     }
 }

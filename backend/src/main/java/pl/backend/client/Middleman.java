@@ -1,7 +1,6 @@
 package pl.backend.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.sun.jdi.connect.Connector;
 import pl.backend.client.pojos.ProvisionsData;
 import pl.backend.client.pojos.Queue;
 
@@ -20,20 +19,34 @@ public class Middleman {
     public void printLocalities(String cityName, String provinceCode) {
         try {
             String response = client.getLocalities(cityName, provinceCode);
-            System.out.println(parser.parseLocalities(response));
+            System.out.println(parser.readPageLocalities(response));
         } catch (java.io.IOException e) {
             System.out.println("Error while connecting to the server");
         }
     }
 
     public List<String> getLocalities(String cityName, String provinceCode) {
-        try {
-            String response = client.getLocalities(cityName, provinceCode);
-            return parser.parseLocalities(response);
-        } catch (java.io.IOException e) {
-            System.out.println("Error while connecting to the server");
-            return null;
-        }
+
+        String response = null;
+        JsonNode next = null;
+        List<String> localities = new ArrayList<>();
+        int page = 0;
+        do {
+            try {
+                page++;
+                response = client.getLocalities(cityName, provinceCode)
+                        != null ? client.getLocalities(cityName, provinceCode) : null;
+                if(response == null) {
+                    break;
+                }
+                localities.addAll(parser.readPageLocalities(response));
+                next = parser.getNextURL(response);
+                sleep(500);
+            } catch (IOException | InterruptedException e) {
+                System.out.println("Error while connecting to the server");
+            }
+        } while (!next.isNull());
+        return localities;
     }
 
     public List<Queue> getQueues(int status, String provinceCode, String benefitName,
@@ -74,7 +87,7 @@ public class Middleman {
                 provisions.addAll(parser.readPageProvisions(response));
                 next = parser.getNextURL(response);
                 sleep(500);
-                System.out.println("Page: " + page);
+                //System.out.println("Page: " + page);
             } catch (IOException | InterruptedException e) {
                 throw new RuntimeException(e);
             }

@@ -4,10 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ProvisionsData {
-    private String medicineProduct = "Brak danych";
-    private String internationalName = "Brak danych";
-    private String dose = "Brak danych";
-    private String pack = "Brak danych";
+    private String medicineProduct;
+    private String internationalName;
+    private String dose;
+    private String pack;
     private double marketPrice;
     private double patientPrice;
 

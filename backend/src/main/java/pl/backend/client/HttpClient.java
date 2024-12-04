@@ -31,7 +31,11 @@ public class HttpClient {
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
-            return response.body().string();
+            if (response.isSuccessful() && response.body() != null) {
+                return response.body().string();
+            } else {
+                return null;
+            }
         }
     }
 

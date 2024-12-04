@@ -15,13 +15,16 @@ public class JsonParser {
 
     private final ObjectMapper mapper = new ObjectMapper();
 
-    public List<String> parseLocalities(String response) {
+    public List<String> readPageLocalities(String response) {
         List<String> localities = new ArrayList<>();
         try {
             JsonNode rootNode = mapper.readTree(response);
             JsonNode resultsNode = rootNode.path("data");
             for(JsonNode result : resultsNode) {
-                localities.add(result.asText());
+                if(!result.isNull()) {
+                    String locality = result.asText();
+                    localities.add(locality);
+                }
             }
         } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
             return localities;
@@ -76,18 +79,22 @@ public class JsonParser {
             data.forEach(q -> {
                 try {
                     ProvisionsData provision = mapper.treeToValue(q.path("attributes"), ProvisionsData.class);
-                    String medicineProduct = q.path("attributes").path("medicine-product").asText();
-                    String internationalName = q.path("attributes").path("international-name").asText();
+                    String medicineProduct = q.path("attributes").path("medicine-product").isNull()
+                            ? "-" : q.path("attributes").path("medicine-product").asText();
+                    String internationalName = q.path("attributes").path("international-name").isNull()
+                            ? "-" : q.path("attributes").path("international-name").asText();
                     provision.setMedicineProduct(medicineProduct);
                     provision.setInternationalName(internationalName);
                     long quantity = q.path("attributes").path("quantity").asLong();
                     double value = q.path("attributes").path("value").asDouble();
                     double contributionOfPatient = q.path("attributes").path("contribution-of-patient").asDouble();
-                    double marketPrice = value / quantity;
-                    double patientPrice = contributionOfPatient / quantity;
-                    provision.setMarketPrice(marketPrice);
-                    provision.setPatientPrice(patientPrice);
-                    provisions.add(provision);
+                    if (quantity > 0) {
+                        double marketPrice = value / quantity;
+                        double patientPrice = contributionOfPatient / quantity;
+                        provision.setMarketPrice(marketPrice);
+                        provision.setPatientPrice(patientPrice);
+                        provisions.add(provision);
+                    }
                 } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
                     System.out.println("Error while parsing the response");
                 }
