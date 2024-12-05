@@ -9,7 +9,6 @@ import pl.backend.client.pojos.Table;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -44,7 +43,7 @@ public class Middleman {
                 next = parser.getNextURL(response);
                 sleep(500);
             } catch (IOException | InterruptedException e) {
-                System.out.println("Error while connecting to the server");
+                System.out.println("Błąd podczas łączenia z serwerem");
             }
         } while (!next.isNull());
         return localities;
@@ -74,7 +73,7 @@ public class Middleman {
                 next = parser.getNextURL(response);
                 sleep(500);
             } catch (IOException | InterruptedException e) {
-                System.out.println("Error while connecting to the server");
+                System.out.println("Błąd podczas łączenia z serwerem");
             }
         } while (!next.isNull());
         return queues;
@@ -112,7 +111,7 @@ public class Middleman {
     }
 
     private List<Table> getTables(String catalog, String name, int year) {
-        logger.info("\u001B[32mReading tables"+ "\u001B[0m");
+        logger.info("\u001B[32mCzytanie tabel"+ "\u001B[0m");
         List<Table> tables = new ArrayList<>();
         String response = client.getIndexOfTable(catalog, name, year);
         if (response == null) {
@@ -123,7 +122,6 @@ public class Middleman {
     }
 
     public List<HospitalizationByAge>getHospitalizationsByAge(String catalog, String name, int year) {
-        logger.info("\u001B[32mReading hospitalizations"+ "\u001B[0m");
         List<Table> tables = new ArrayList<>(getTables(catalog, name, year));
         List<HospitalizationByAge> hospitalizations = new ArrayList<>();
         for(Table t : tables) {
@@ -132,15 +130,17 @@ public class Middleman {
             try {
                 do {
                     page++;
-                    response = client.getHospitalizationByAge(t.getId(), page);
+                    response = client.getBasicData(t.getId(), page);
                     if(response == null) {
                         break;
                     }
-                    hospitalizations = parser.readHospitalizationPage(response);
+                    List<HospitalizationByAge> parsed = parser.readHospitalizationPage(response);
+                    hospitalizations.addAll(parsed);
+                    logger.info("\u001B[32mCzytanie hospitalizacji strona: " + page + "\u001B[0m");
                     sleep(500);
                 } while (response != null);
             } catch (InterruptedException e) {
-                System.out.println("Error while connecting to the server");
+                System.out.println("Błąd podczas łączenia z serwerem");
             }
         }
         return hospitalizations;

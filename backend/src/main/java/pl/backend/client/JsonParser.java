@@ -129,7 +129,7 @@ public class JsonParser {
                 year.path("tables").elements().forEachRemaining(tables::add);
                 for(JsonNode table : tables) {
                     String type = table.path("type").asText();
-                    if(!type.equalsIgnoreCase("hospitalization-by-age")) {
+                    if(!type.equalsIgnoreCase("general-data")) {
                         continue;
                     }
                     String url = table.path("links").path("related").asText();
@@ -158,8 +158,10 @@ public class JsonParser {
             attributes.path("data").elements().forEachRemaining(data::add);
             for(JsonNode hospitalization : data) {
                 HospitalizationByAge hospitalizationByAge = new HospitalizationByAge();
-                hospitalizationByAge.setBranch(hospitalization.path("branch").asText());
-                hospitalizationByAge.setHospitalType(hospitalization.path("hospital-types").asText());
+                hospitalizationByAge.setBranch(hospitalization.path("branch").isNull()
+                        ? "-" : hospitalization.path("branch").asText());
+                hospitalizationByAge.setHospitalType(hospitalization.path("hospital-types").isNull()
+                        ? "-" : hospitalization.path("hospital-types").asText());
                 hospitalizationByAge.setNumberOfPatients(hospitalization.path("number-of-patients").asInt());
                 hospitalizationByAge.setNumberOfHospitalizations(hospitalization.path("number-of-hospitalizations").asInt());
                 hospitalizationByAge.setPercentage(hospitalization.path("percentage").asDouble());

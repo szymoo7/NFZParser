@@ -119,11 +119,6 @@
                               <Font size="27.0" />
                            </font>
                         </Label>
-                        <Label fx:id="currentPagePlaces" layoutX="196.0" layoutY="276.0" prefHeight="30.0" prefWidth="78.0" textFill="#00ff26">
-                           <font>
-                              <Font size="20.0" />
-                           </font>
-                        </Label>
                      </children>
                   </AnchorPane>
               </content>

@@ -201,12 +201,12 @@ public class HttpClient {
         }
     }
 
-    String getHospitalizationByAge(UUID id, int page) {
+    String getBasicData(UUID id, int page) {
         HttpUrl url = new HttpUrl.Builder()
                 .scheme("https")
                 .host("api.nfz.gov.pl")
                 .addPathSegment("app-stat-api-jgp")
-                .addPathSegment("hospitalization-by-age")
+                .addPathSegment("basic-data")
                 .addPathSegment(id.toString())
                 .addQueryParameter("page", String.valueOf(page))
                 .addQueryParameter("limit", "25")
