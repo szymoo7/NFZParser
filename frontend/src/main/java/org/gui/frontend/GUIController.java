@@ -167,23 +167,33 @@ public class GUIController implements Initializable {
         String code = provincesChoiceBox.getValue() != null ? provincesChoiceBox.getValue().getCode() : null;
 
         nfzPlacesListView.getItems().clear();
-        List<String> localities = middleman.getLocalities(cityName, code);
         new Thread(() -> {
-            localities.forEach(nfzPlacesListView.getItems()::add);
-            Platform.runLater(() -> loadingPlacesLabel.setVisible(false));
+            List<String> localities = middleman.getLocalities(cityName, code);
+            Platform.runLater(() -> {
+                nfzPlacesListView.setItems(FXCollections.observableArrayList(localities));
+                loadingPlacesLabel.setVisible(false);
+            });
+
         }).start();
     }
 
     @FXML
     protected void onShowDatesButtonClick() {
-        int status = visitDateCase.getValue().getNumber();
-        String provinceCode = visitDateProvincesChoiceBox.getValue().getCode();
-        String benefitName = visitDateBenefitNameTextField.getText();
+        int status = visitDateCase.getValue()
+                != null ? visitDateCase.getValue().getNumber() : 0;
+        String provinceCode = visitDateProvincesChoiceBox.getValue()
+                != null ? visitDateProvincesChoiceBox.getValue().getCode() : null;
+        String benefitName = visitDateBenefitNameTextField.getText().isEmpty()
+                ? null : visitDateBenefitNameTextField.getText();
         boolean forChildren = benefitForChildrenCheckBox.isSelected();
-        String providerName = visitDateProviderNameTextField.getText();
-        String providerPlaceName = visitDateProviderPlaceNameTextField.getText();
-        String providerPlaceStreetName = visitDateProviderPlaceStreetNameTextField.getText();
-        String providerCityName = visitDateProviderCityNameTextField.getText();
+        String providerName = visitDateProviderNameTextField.getText().isEmpty()
+                ? null : visitDateProviderNameTextField.getText();
+        String providerPlaceName = visitDateProviderPlaceNameTextField.getText().isEmpty()
+                ? null : visitDateProviderPlaceNameTextField.getText();
+        String providerPlaceStreetName = visitDateProviderPlaceStreetNameTextField.getText().isEmpty()
+                ? null : visitDateProviderPlaceStreetNameTextField.getText();
+        String providerCityName = visitDateProviderCityNameTextField.getText().isEmpty()
+                ? null : visitDateProviderCityNameTextField.getText();
         loadingText.setVisible(true);
 
         new Thread(() -> {
@@ -199,16 +209,22 @@ public class GUIController implements Initializable {
     @FXML
     protected void onShowProvisionsButtonClick() {
         loadingProvisionsLabel.setVisible(true);
-        String provinceCode = provisionChoiceBox.getValue().getCode();
+        String provinceCode = provisionChoiceBox.getValue()
+                != null ? provisionChoiceBox.getValue().getCode() : null;
         LocalDateTime dateFrom = provisionDatePickerFrom.getValue()
                 != null ? provisionDatePickerFrom.getValue().atStartOfDay() : null;
         LocalDateTime dateTo = provisionDatePickerTo.getValue()
                 != null ? provisionDatePickerTo.getValue().atStartOfDay() : null;
-        String medicineProduct = provisionMedicineProduct.getText();
-        String activeSubstance = provisionActiveSubstance.getText();
-        String atc = atcTextField.getText();
-        String gender = provisionGender.getValue().getCode();
-        int ageGroup = provisionAge.getValue().getNumber();
+        String medicineProduct = provisionMedicineProduct.getText().isEmpty()
+                ? null : provisionMedicineProduct.getText();
+        String activeSubstance = provisionActiveSubstance.getText().isEmpty()
+                ? null : provisionActiveSubstance.getText();
+        String atc = atcTextField.getText().isEmpty()
+                ? null : atcTextField.getText();
+        String gender = provisionGender.getValue() != null
+                ? provisionGender.getValue().getCode() : null;
+        int ageGroup = provisionAge.getValue()
+                != null ? provisionAge.getValue().getNumber() : 0;
         String privilegesAdditional = provisionAdditional.getValue() != null
                 ? provisionAdditional.getValue().getCode() : null;
         String announcement = provisionAnnouncement.getValue() != null

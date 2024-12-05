@@ -3,10 +3,9 @@ package pl.backend.client;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.Response;
-import pl.backend.client.pojos.Queue;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.UUID;
 
 public class HttpClient {
     okhttp3.OkHttpClient client = new okhttp3.OkHttpClient();
@@ -86,7 +85,11 @@ public class HttpClient {
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
-            return response.body().string();
+            if (response.isSuccessful() && response.body() != null) {
+                return response.body().string();
+            } else {
+                return null;
+            }
         }
     }
 
@@ -152,10 +155,79 @@ public class HttpClient {
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
-            return response.body().string();
+            if (response.isSuccessful() && response.body() != null) {
+                return response.body().string();
+            } else {
+                return null;
+            }
+        }
+    }
+
+    String getIndexOfTable(String catalog, String name, int year) {
+        HttpUrl.Builder urlBuilder = new HttpUrl.Builder()
+                .scheme("https")
+                .host("api.nfz.gov.pl")
+                .addPathSegment("app-stat-api-jgp")
+                .addPathSegment("index-of-tables")
+                .addQueryParameter("limit", "25")
+                .addQueryParameter("format", "json");
+
+        if (catalog != null) {
+            urlBuilder.addQueryParameter("catalog", catalog);
+        }
+        if (name != null) {
+            urlBuilder.addQueryParameter("name", name);
+        }
+        if (year != -1) {
+            urlBuilder.addQueryParameter("year", String.valueOf(year));
         }
 
+        urlBuilder.addQueryParameter("api-version", "1.1");
+        HttpUrl url = urlBuilder.build();
 
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("accept", "text/plain")
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (response.isSuccessful() && response.body() != null) {
+                return response.body().string();
+            } else {
+                return null;
+            }
+        } catch (java.io.IOException e) {
+            return null;
+        }
+    }
+
+    String getHospitalizationByAge(UUID id, int page) {
+        HttpUrl url = new HttpUrl.Builder()
+                .scheme("https")
+                .host("api.nfz.gov.pl")
+                .addPathSegment("app-stat-api-jgp")
+                .addPathSegment("hospitalization-by-age")
+                .addPathSegment(id.toString())
+                .addQueryParameter("page", String.valueOf(page))
+                .addQueryParameter("limit", "25")
+                .addQueryParameter("format", "json")
+                .addQueryParameter("api-version", "1.1")
+                .build();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("accept", "text/plain")
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (response.isSuccessful() && response.body() != null) {
+                return response.body().string();
+            } else {
+                return null;
+            }
+        } catch (java.io.IOException e) {
+            return null;
+        }
     }
 
 }

@@ -1,35 +1,32 @@
 package pl.backend.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import pl.backend.client.pojos.HospitalizationByAge;
 import pl.backend.client.pojos.ProvisionsData;
 import pl.backend.client.pojos.Queue;
+import pl.backend.client.pojos.Table;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.logging.Logger;
 
 import static java.lang.Thread.sleep;
 
 public class Middleman {
 
-    HttpClient client = new HttpClient();
-    JsonParser parser = new JsonParser();
-
-    public void printLocalities(String cityName, String provinceCode) {
-        try {
-            String response = client.getLocalities(cityName, provinceCode);
-            System.out.println(parser.readPageLocalities(response));
-        } catch (java.io.IOException e) {
-            System.out.println("Error while connecting to the server");
-        }
-    }
+    private HttpClient client = new HttpClient();
+    private JsonParser parser = new JsonParser();
+    private Logger logger = Logger.getLogger(Middleman.class.getName());
 
     public List<String> getLocalities(String cityName, String provinceCode) {
 
         String response = null;
         JsonNode next = null;
         List<String> localities = new ArrayList<>();
+        int totalPages = -1;
         int page = 0;
         do {
             try {
@@ -39,7 +36,11 @@ public class Middleman {
                 if(response == null) {
                     break;
                 }
+                if(totalPages == -1) {
+                    totalPages = parser.readTotalPages(response);
+                }
                 localities.addAll(parser.readPageLocalities(response));
+                logger.info("\u001B[32mStrona: " + page + " / " + totalPages + "\u001B[0m");
                 next = parser.getNextURL(response);
                 sleep(500);
             } catch (IOException | InterruptedException e) {
@@ -55,13 +56,21 @@ public class Middleman {
         String response = null;
         JsonNode next = null;
         List<Queue> queues = new ArrayList<>();
+        int totalPages = -1;
         int page = 0;
         do {
             try {
                 page++;
                 response = client.getQueues(status, provinceCode, benefitName, forChildren, providerName,
                         providerPlaceName, providerPlaceStreetName, providerCityName, page);
+                if(response == null) {
+                    break;
+                }
+                if(totalPages == -1) {
+                    totalPages = parser.readTotalPages(response);
+                }
                 queues.addAll(parser.readPageQueue(response));
+                logger.info("\u001B[32mStrona: " + page + " / " + totalPages + "\u001B[0m");
                 next = parser.getNextURL(response);
                 sleep(500);
             } catch (IOException | InterruptedException e) {
@@ -78,16 +87,23 @@ public class Middleman {
         String response = null;
         JsonNode next = null;
         List<ProvisionsData> provisions = new ArrayList<>();
+        int totalPages = -1;
         int page = 0;
         do {
             try {
                 page++;
                 response = client.getProvisions(provinceCode, dateFrom, dateTo, medicineProduct, activeSubstance,
                         atc, gender, ageGroup, privilegesAdditional, announcement, page);
+                if(response == null) {
+                    break;
+                }
+                if(totalPages == -1) {
+                    totalPages = parser.readTotalPages(response);
+                }
                 provisions.addAll(parser.readPageProvisions(response));
+                logger.info("\u001B[32mStrona: " + page + " / " + totalPages + "\u001B[0m");
                 next = parser.getNextURL(response);
                 sleep(500);
-                //System.out.println("Page: " + page);
             } catch (IOException | InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -95,18 +111,48 @@ public class Middleman {
         return provisions;
     }
 
-//    public void printQueues(int status, String provinceCode, String benefitName,
-//                                 boolean forChildren, String providerName, String providerPlaceName,
-//                                 String providerPlaceStreetName, String providerCityName) {
-//        List<Queue> queues = getQueues(status, provinceCode, benefitName, forChildren, providerName, providerPlaceName, providerPlaceStreetName, providerCityName);
-//        queues.forEach(System.out::println);
-//    }
+    private List<Table> getTables(String catalog, String name, int year) {
+        logger.info("\u001B[32mReading tables"+ "\u001B[0m");
+        List<Table> tables = new ArrayList<>();
+        String response = client.getIndexOfTable(catalog, name, year);
+        if (response == null) {
+            return tables;
+        }
+        tables.addAll(parser.getTables(response));
+        return tables;
+    }
+
+    public List<HospitalizationByAge>getHospitalizationsByAge(String catalog, String name, int year) {
+        logger.info("\u001B[32mReading hospitalizations"+ "\u001B[0m");
+        List<Table> tables = new ArrayList<>(getTables(catalog, name, year));
+        List<HospitalizationByAge> hospitalizations = new ArrayList<>();
+        for(Table t : tables) {
+            int page = 0;
+            String response = null;
+            try {
+                do {
+                    page++;
+                    response = client.getHospitalizationByAge(t.getId(), page);
+                    if(response == null) {
+                        break;
+                    }
+                    hospitalizations = parser.readHospitalizationPage(response);
+                    sleep(500);
+                } while (response != null);
+            } catch (InterruptedException e) {
+                System.out.println("Error while connecting to the server");
+            }
+        }
+        return hospitalizations;
+    }
 
     public static void main(String[] args) {
         Middleman connector = new Middleman();
 //        connector.printQueues(1, "02", "Leczenie", true, null, null, null, "Toruń");
-//        connector.getProvisions("02", null, null, null,
-//                null, null, "M", 1,
+//        connector.getProvisions(null, null, null, null,
+//                null, "zs", null, 0,
 //                null, null).forEach(System.out::println);
+
+        connector.getHospitalizationsByAge("1w", "PRZESZCZEPIENIE/WSPOMAGANIE SERCA", -1).forEach(System.out::println);
     }
 }

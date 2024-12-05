@@ -4,6 +4,7 @@ module backend {
     requires com.fasterxml.jackson.databind;
     requires okhttp3;
     requires jdk.jdi;
+    requires java.logging;
 
     exports pl.backend.client.pojos;
 }
