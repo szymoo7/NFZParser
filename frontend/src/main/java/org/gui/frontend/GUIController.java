@@ -8,7 +8,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
-import javafx.scene.text.Text;
 import pl.backend.client.Middleman;
 import pl.backend.client.enums.*;
 import pl.backend.client.pojos.HospitalizationByAge;

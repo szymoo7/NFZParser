@@ -43,7 +43,7 @@ public class Middleman {
                 next = parser.getNextURL(response);
                 sleep(500);
             } catch (IOException | InterruptedException e) {
-                System.out.println("Błąd podczas łączenia z serwerem");
+                logger.severe("Błąd podczas łączenia z serwerem");
             }
         } while (!next.isNull());
         return localities;
@@ -73,7 +73,7 @@ public class Middleman {
                 next = parser.getNextURL(response);
                 sleep(500);
             } catch (IOException | InterruptedException e) {
-                System.out.println("Błąd podczas łączenia z serwerem");
+                logger.severe("Błąd podczas łączenia z serwerem");
             }
         } while (!next.isNull());
         return queues;
@@ -140,7 +140,7 @@ public class Middleman {
                     sleep(500);
                 } while (response != null);
             } catch (InterruptedException e) {
-                System.out.println("Błąd podczas łączenia z serwerem");
+                logger.severe("Błąd podczas łączenia z serwerem");
             }
         }
         return hospitalizations;

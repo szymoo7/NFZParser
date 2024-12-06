@@ -2,8 +2,10 @@ package pl.backend.client;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
+
 import pl.backend.client.pojos.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -12,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class JsonParser {
 
     private final ObjectMapper mapper = new ObjectMapper();
+    private Logger logger = Logger.getLogger(JsonParser.class.getName());
 
     public List<String> readPageLocalities(String response) {
         List<String> localities = new ArrayList<>();
@@ -46,11 +49,11 @@ public class JsonParser {
                     queue.setAttributes(attributes);
                     queues.add(queue);
                 } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
-                    System.out.println("Error while parsing the response");
+                    logger.severe("Błąd podczas parsowania odpowiedzi");
                 }
             });
         } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
-            System.out.println("Error while parsing the response");
+            logger.severe("Błąd podczas parsowania odpowiedzi");
         }
 
         return queues;
@@ -62,7 +65,7 @@ public class JsonParser {
             JsonNode nextUrl = current.path("links").path("next");
             return nextUrl;
         } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
-            System.out.println("Error while parsing the response");
+            logger.severe("Błąd podczas parsowania odpowiedzi");
             return null;
         }
     }
@@ -94,11 +97,11 @@ public class JsonParser {
                         provisions.add(provision);
                     }
                 } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
-                    System.out.println("Error while parsing the response");
+                    logger.severe("Błąd podczas parsowania odpowiedzi");
                 }
             });
         } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
-            System.out.println("Error while parsing the response");
+            logger.severe("Błąd podczas parsowania odpowiedzi");
         }
 
         return provisions;
@@ -111,7 +114,7 @@ public class JsonParser {
             int count = meta.path("count").asInt();
             return count % 25 == 0 ? count / 25 : count / 25 + 1;
         } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
-            System.out.println("Error while parsing the response");
+            logger.severe("Błąd podczas parsowania odpowiedzi");
             return 0;
         }
     }
@@ -169,7 +172,7 @@ public class JsonParser {
                 hospitalizations.add(hospitalizationByAge);
             }
         } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
-            System.out.println("Error while parsing the response");
+            logger.severe("Błąd podczas parsowania odpowiedzi");
         }
         return hospitalizations;
     }

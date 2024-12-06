@@ -6,9 +6,11 @@ import okhttp3.Response;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 public class HttpClient {
     okhttp3.OkHttpClient client = new okhttp3.OkHttpClient();
+    private Logger logger = Logger.getLogger(HttpClient.class.getName());
 
     String getLocalities(String cityName, String provinceCode) throws java.io.IOException {
         HttpUrl url = new HttpUrl.Builder()
@@ -33,8 +35,12 @@ public class HttpClient {
             if (response.isSuccessful() && response.body() != null) {
                 return response.body().string();
             } else {
+                logger.info("Błąd podczas pobierania danych");
                 return null;
             }
+        } catch (java.io.IOException e) {
+            logger.info("Błąd podczas pobierania danych");
+            return null;
         }
     }
 
@@ -88,8 +94,12 @@ public class HttpClient {
             if (response.isSuccessful() && response.body() != null) {
                 return response.body().string();
             } else {
+                logger.info("Błąd podczas pobierania danych");
                 return null;
             }
+        } catch (java.io.IOException e) {
+            logger.info("Błąd podczas pobierania danych");
+            return null;
         }
     }
 
@@ -158,8 +168,12 @@ public class HttpClient {
             if (response.isSuccessful() && response.body() != null) {
                 return response.body().string();
             } else {
+                logger.info("Błąd podczas pobierania danych");
                 return null;
             }
+        } catch (java.io.IOException e) {
+            logger.info("Błąd podczas pobierania danych");
+            return null;
         }
     }
 
@@ -194,9 +208,11 @@ public class HttpClient {
             if (response.isSuccessful() && response.body() != null) {
                 return response.body().string();
             } else {
+                logger.info("Błąd podczas pobierania danych");
                 return null;
             }
         } catch (java.io.IOException e) {
+            logger.info("Błąd podczas pobierania danych");
             return null;
         }
     }
@@ -223,9 +239,11 @@ public class HttpClient {
             if (response.isSuccessful() && response.body() != null) {
                 return response.body().string();
             } else {
+                logger.info("Błąd podczas pobierania danych");
                 return null;
             }
         } catch (java.io.IOException e) {
+            logger.info("Błąd podczas pobierania danych");
             return null;
         }
     }
