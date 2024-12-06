@@ -11,6 +11,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
 import pl.backend.client.Middleman;
 import pl.backend.client.enums.*;
+import pl.backend.client.pojos.HospitalizationByAge;
 import pl.backend.client.pojos.ProvisionsData;
 import pl.backend.client.pojos.Queue;
 
@@ -126,6 +127,26 @@ public class GUIController implements Initializable {
     private Label loadingProvisionsLabel;
     @FXML
     private Label loadingPlacesLabel;
+    @FXML
+    private TextField statsBenefitNameTextField;
+    @FXML
+    private TextField statsYearTextField;
+    @FXML
+    private Button showStatsButton;
+    @FXML
+    private Label loadingStatsLabel;
+    @FXML
+    private TableView<HospitalizationByAge> statsTab;
+    @FXML
+    private TableColumn<HospitalizationByAge, Integer> yearColumn;
+    @FXML
+    private TableColumn<HospitalizationByAge, String> branchColumn;
+    @FXML
+    private TableColumn<HospitalizationByAge, String> numberOfPatientsColumn;
+    @FXML
+    private TableColumn<HospitalizationByAge, String> numberOfHospitalizationsColumn;
+    @FXML
+    private TableColumn<HospitalizationByAge, Double> percentageColumn;
 
 
     @Override
@@ -138,6 +159,11 @@ public class GUIController implements Initializable {
         provisionAge.setItems(FXCollections.observableArrayList(AGE_LIST));
         provisionAdditional.setItems(FXCollections.observableArrayList(PRIVILEGES_LIST));
         provisionAnnouncement.setItems(FXCollections.observableArrayList(ANNOUNCEMENTS));
+        yearColumn.setCellValueFactory(new PropertyValueFactory<>("year"));
+        branchColumn.setCellValueFactory(new PropertyValueFactory<>("branch"));
+        numberOfPatientsColumn.setCellValueFactory(new PropertyValueFactory<>("numberOfPatients"));
+        numberOfHospitalizationsColumn.setCellValueFactory(new PropertyValueFactory<>("numberOfHospitalizations"));
+        percentageColumn.setCellValueFactory(new PropertyValueFactory<>("percentage"));
         benefitColumn.setCellValueFactory(cellData ->
                 new SimpleStringProperty(cellData.getValue().getAttributes().getBenefit()));
         providerColumn.setCellValueFactory(cellData ->
@@ -235,6 +261,32 @@ public class GUIController implements Initializable {
             Platform.runLater(() -> {
                     provisionTableView.setItems(FXCollections.observableArrayList(drugs));
                     loadingProvisionsLabel.setVisible(false);
+            });
+        }).start();
+    }
+
+    @FXML
+    protected void onShowStatsButtonClick() {
+        String benefitName = statsBenefitNameTextField.getText().isEmpty()
+                ? null : statsBenefitNameTextField.getText();
+        int year;
+        if (statsYearTextField.getText().isEmpty()) {
+            year = -1;
+        } else {
+            try {
+                year = Integer.parseInt(statsYearTextField.getText());
+            } catch (NumberFormatException e) {
+                year = -1;
+            }
+        }
+        int finalYear = year;
+        new Thread(() -> {
+            loadingStatsLabel.setVisible(true);
+            List<HospitalizationByAge> hospitalizations = middleman.
+                    getHospitalizationsByAge("1w", benefitName, finalYear);
+            Platform.runLater(() -> {
+                statsTab.setItems(FXCollections.observableArrayList(hospitalizations));
+                loadingStatsLabel.setVisible(false);
             });
         }).start();
     }

@@ -148,11 +148,6 @@ public class Middleman {
 
     public static void main(String[] args) {
         Middleman connector = new Middleman();
-//        connector.printQueues(1, "02", "Leczenie", true, null, null, null, "Toruń");
-//        connector.getProvisions(null, null, null, null,
-//                null, "zs", null, 0,
-//                null, null).forEach(System.out::println);
-
         connector.getHospitalizationsByAge("1w", "PRZESZCZEPIENIE/WSPOMAGANIE SERCA", -1).forEach(System.out::println);
     }
 }
