@@ -34,5 +34,3 @@ This project is designed for students, researchers, and healthcare analysts who 
 - **OkHttp** – REST API client  
 - **Jackson** – JSON parsing  
 - **Maven** – build and dependency management  
-
----
